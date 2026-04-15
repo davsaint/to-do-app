@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To-Do List — Gerenciador de Tarefas</title>
+
+  <!-- =====================================================
+       ESTILOS INLINE — Tema Azul e Branco (Modo Claro)
+       Inclui reset básico, variáveis CSS e layout responsivo
+       ===================================================== -->
+  <style>
+    /* ── Reset e variáveis de tema ───────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --azul-escuro:   #042C53;
+      --azul-primario: #185FA5;
+      --azul-medio:    #378ADD;
+      --azul-claro:    #B5D4F4;
+      --azul-fundo:    #E6F1FB;
+      --branco:        #FFFFFF;
+      --cinza-claro:   #F1EFE8;
+      --cinza-borda:   #D3D1C7;
+      --texto-escuro:  #1A1A1A;
+      --texto-medio:   #444441;
+      --raio-sm:       6px;
+      --raio-md:       8px;
+      --raio-lg:       12px;
+      --sombra:        0 2px 8px rgba(24, 95, 165, 0.10);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      background-color: var(--azul-fundo);
+      color: var(--texto-escuro);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    /* ── Contentor principal da aplicação ────────────── */
+    .app-wrapper {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ── Cabeçalho ────────────────────────────────────── */
+    header.site-header {
+      background-color: var(--azul-primario);
+      color: var(--branco);
+      border-radius: var(--raio-lg);
+      padding: 1.5rem 2rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--sombra);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header.site-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    header.site-header .header-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: var(--raio-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    /* ── Seção do formulário ──────────────────────────── */
+    section.form-section {
+      background-color: var(--branco);
+      border: 1px solid var(--azul-claro);
+      border-radius: var(--raio-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.75rem;
+      box-shadow: var(--sombra);
+    }
+
+    section.form-section h2 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--azul-primario);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Grupos de campos do formulário ──────────────── */
+    fieldset {
+      border: none;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    /* Campo que ocupa toda a largura (ex: descrição) */
+    .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .form-group label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--texto-medio);
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group select {
+      padding: 10px 12px;
+      border: 1px solid var(--cinza-borda);
+      border-radius: var(--raio-md);
+      font-size: 0.95rem;
+      color: var(--texto-escuro);
+      background-color: var(--branco);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--azul-medio);
+      box-shadow: 0 0 0 3px rgba(55, 138, 221, 0.18);
+    }
+
+    /* ── Botão de adicionar tarefa ────────────────────── */
+    button.btn-adicionar {
+      width: 100%;
+      background-color: var(--azul-primario);
+      color: var(--branco);
+      border: none;
+      border-radius: var(--raio-md);
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      margin-top: 4px;
+    }
+
+    button.btn-adicionar:hover {
+      background-color: var(--azul-escuro);
+    }
+
+    button.btn-adicionar:active {
+      transform: scale(0.98);
+    }
+
+    /* ── Seção da lista de tarefas ────────────────────── */
+    section.tasks-section h2 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--azul-primario);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Lista de tarefas (ul semântico) ──────────────── */
+    ul.task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── Item individual de tarefa ────────────────────── */
+    li.task-item {
+      background-color: var(--branco);
+      border: 1px solid var(--azul-claro);
+      border-left: 4px solid var(--azul-medio);
+      border-radius: var(--raio-lg);
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: var(--sombra);
+      transition: opacity 0.2s;
+    }
+
+    /* Estado "concluída" da tarefa */
+    li.task-item.concluida {
+      opacity: 0.55;
+      border-left-color: #639922;
+    }
+
+    li.task-item.concluida .task-title {
+      text-decoration: line-through;
+      color: var(--texto-medio);
+    }
+
+    /* Conteúdo textual da tarefa */
+    .task-body {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 0.975rem;
+      font-weight: 600;
+      color: var(--texto-escuro);
+      margin-bottom: 5px;
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ── Badges de prioridade ─────────────────────────── */
+    .badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-alta   { background: #FCEBEB; color: #791F1F; }
+    .badge-media  { background: #FAEEDA; color: #633806; }
+    .badge-baixa  { background: #EAF3DE; color: #27500A; }
+
+    /* Data da tarefa */
+    .task-date {
+      font-size: 0.8rem;
+      color: var(--texto-medio);
+    }
+
+    /* ── Botão "Marcar como concluída" ────────────────── */
+    button.btn-concluir {
+      background-color: var(--azul-fundo);
+      color: var(--azul-primario);
+      border: 1px solid var(--azul-claro);
+      border-radius: var(--raio-md);
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    button.btn-concluir:hover {
+      background-color: var(--azul-claro);
+    }
+
+    li.task-item.concluida button.btn-concluir {
+      background-color: #EAF3DE;
+      color: #27500A;
+      border-color: #C0DD97;
+    }
+
+    /* ── Rodapé ───────────────────────────────────────── */
+    footer.site-footer {
+      text-align: center;
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--azul-primario);
+      opacity: 0.7;
+    }
+
+    /* ── Responsividade ───────────────────────────────── */
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .form-group.full-width { grid-column: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =====================================================
+       CONTENTOR PRINCIPAL DA APLICAÇÃO
+       ===================================================== -->
+  <div class="app-wrapper">
+
+    <!-- ── CABEÇALHO DO SITE ─────────────────────────────
+         Identidade visual e título da aplicação
+         ─────────────────────────────────────────────── -->
+    <header class="site-header" role="banner">
+      <div class="header-icon" aria-hidden="true">✓</div>
+      <h1>Minhas Tarefas</h1>
+    </header>
+
+    <!-- ── CONTEÚDO PRINCIPAL ────────────────────────────
+         Agrupa formulário e lista de tarefas
+         ─────────────────────────────────────────────── -->
+    <main id="main-content">
+
+      <!-- ── FORMULÁRIO DE NOVA TAREFA ─────────────────
+           Permite adicionar tarefa com prioridade e data
+           ─────────────────────────────────────────── -->
+      <section class="form-section" aria-labelledby="form-titulo">
+        <h2 id="form-titulo">Nova tarefa</h2>
+
+        <form id="form-tarefa" action="#" novalidate>
+          <fieldset>
+            <legend class="sr-only">Campos para adicionar uma nova tarefa</legend>
+
+            <div class="form-grid">
+
+              <!-- Campo: descrição da tarefa -->
+              <div class="form-group full-width">
+                <label for="tarefa-descricao">Descrição da tarefa</label>
+                <input
+                  type="text"
+                  id="tarefa-descricao"
+                  name="descricao"
+                  placeholder="Ex: Estudar para a prova de cálculo..."
+                  maxlength="200"
+                  required
+                  aria-required="true"
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Campo: prioridade (Alta, Média, Baixa) -->
+              <div class="form-group">
+                <label for="tarefa-prioridade">Prioridade</label>
+                <select
+                  id="tarefa-prioridade"
+                  name="prioridade"
+                  required
+                  aria-required="true"
+                >
+                  <option value="" disabled selected>Selecionar...</option>
+                  <option value="alta">Alta</option>
+                  <option value="media">Média</option>
+                  <option value="baixa">Baixa</option>
+                </select>
+              </div>
+
+              <!-- Campo: data limite para a tarefa -->
+              <div class="form-group">
+                <label for="tarefa-data">Data limite</label>
+                <input
+                  type="date"
+                  id="tarefa-data"
+                  name="data"
+                  required
+                  aria-required="true"
+                />
+              </div>
+
+            </div><!-- /form-grid -->
+
+            <!-- Botão de submissão do formulário -->
+            <button
+              type="submit"
+              class="btn-adicionar"
+              aria-label="Adicionar nova tarefa à lista"
+            >
+              + Adicionar tarefa
+            </button>
+
+          </fieldset>
+        </form>
+      </section>
+      <!-- /form-section -->
+
+
+      <!-- ── LISTA DE TAREFAS ───────────────────────────
+           Exibe as tarefas cadastradas pelo usuário
+           ─────────────────────────────────────────── -->
+      <section class="tasks-section" aria-labelledby="lista-titulo">
+        <h2 id="lista-titulo">Lista de tarefas</h2>
+
+        <ul class="task-list" id="lista-tarefas" aria-live="polite" aria-label="Lista de tarefas">
+
+          <!-- ──────────────────────────────────────────
+               TAREFA 1 — Exemplo: pendente, prioridade alta
+               ────────────────────────────────────────── -->
+          <li class="task-item" role="listitem">
+
+            <!-- Conteúdo textual da tarefa -->
+            <div class="task-body">
+              <p class="task-title">Entregar relatório de pesquisa</p>
+              <div class="task-meta">
+                <!-- Badge de prioridade -->
+                <span class="badge badge-alta" aria-label="Prioridade alta">Alta</span>
+                <!-- Data limite -->
+                <time class="task-date" datetime="2026-04-16">📅 16/04/2026</time>
+              </div>
+            </div>
+
+            <!-- Botão para marcar como concluída -->
+            <button
+              class="btn-concluir"
+              type="button"
+              aria-label="Marcar tarefa 'Entregar relatório de pesquisa' como concluída"
+            >
+              Concluir
+            </button>
+
+          </li>
+          <!-- /tarefa 1 -->
+
+
+          <!-- ──────────────────────────────────────────
+               TAREFA 2 — Exemplo: pendente, prioridade média
+               ────────────────────────────────────────── -->
+          <li class="task-item" role="listitem">
+
+            <div class="task-body">
+              <p class="task-title">Revisar exercícios de programação</p>
+              <div class="task-meta">
+                <span class="badge badge-media" aria-label="Prioridade média">Média</span>
+                <time class="task-date" datetime="2026-04-20">📅 20/04/2026</time>
+              </div>
+            </div>
+
+            <button
+              class="btn-concluir"
+              type="button"
+              aria-label="Marcar tarefa 'Revisar exercícios de programação' como concluída"
+            >
+              Concluir
+            </button>
+
+          </li>
+          <!-- /tarefa 2 -->
+
+
+          <!-- ──────────────────────────────────────────
+               TAREFA 3 — Exemplo: CONCLUÍDA, prioridade baixa
+               Classe "concluida" aplicada ao <li>
+               ────────────────────────────────────────── -->
+          <li class="task-item concluida" role="listitem" aria-label="Tarefa concluída">
+
+            <div class="task-body">
+              <p class="task-title">Ler capítulo 3 do livro de algoritmos</p>
+              <div class="task-meta">
+                <span class="badge badge-baixa" aria-label="Prioridade baixa">Baixa</span>
+                <time class="task-date" datetime="2026-04-14">📅 14/04/2026</time>
+              </div>
+            </div>
+
+            <!-- Botão indica que a tarefa já foi concluída -->
+            <button
+              class="btn-concluir"
+              type="button"
+              aria-label="Tarefa 'Ler capítulo 3' já concluída. Clique para reabrir."
+              aria-pressed="true"
+            >
+              Concluída ✓
+            </button>
+
+          </li>
+          <!-- /tarefa 3 -->
+
+        </ul>
+        <!-- /task-list -->
+
+      </section>
+      <!-- /tasks-section -->
+
+    </main>
+    <!-- /main -->
+
+
+    <!-- ── RODAPÉ ─────────────────────────────────────────
+         Informações institucionais do projeto
+         ─────────────────────────────────────────────── -->
+    <footer class="site-footer" role="contentinfo">
+      <p>Projeto acadêmico &mdash; To-Do List &copy; 2026</p>
+    </footer>
+
+  </div>
+  <!-- /app-wrapper -->
+
+</body>
+</html>
