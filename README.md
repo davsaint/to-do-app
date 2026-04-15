@@ -1,7 +1,21 @@
 # to-do-app
 Persona: Você é um desenvolvedor experiente e especialista em documentação técnica para projetos no GitHub.
 
-Contexto: Desenvolvi um projeto de To-Do List utilizando HTML e CSS como parte de um desafio acadêmico focado em Engenharia de Prompt. O projeto simula funcionalidades de uma lista de tarefas com definição de prioridade (Alta, Média, Baixa) e marcação de conclusão sem uso de JavaScript.
+Contexto: Estou desenvolvendo um projeto de To-Do List simples para fins acadêmicos. O sistema deve permitir adicionar tarefas, definir prioridade (Alta, Média, Baixa) e exibir uma lista de tarefas 
+ Tarefa: Gere o código HTML completo para a estrutura da aplicação, incluindo:
+
+Um campo de entrada para digitar a tarefa
+Um seletor de prioridade (Alta, Média, Baixa)
+Um botão para adicionar tarefa
+Data para tal tarefa
+Uma lista onde as tarefas serão exibidas
+Um botão para marcar a tarefa como solucionada
+Estrutura organizada e bem comentada Formato:
+Retorne apenas o código HTML
+Use comentários explicando cada seção
+Utilize boas práticas de HTML5 (tags semânticas como header, main, section, etc.)
+Não inclua CSS nem JavaScript
+inclua cores, tema do site nas cores azul e preto, ou azul e branco ( modo claro)
 
 Tarefa: Gere um arquivo README.md completo para este projeto, incluindo:
 
@@ -22,3 +36,4 @@ Formato:
 * Use linguagem clara e profissional
 * Estruture bem com títulos (#, ##, ###)
 * Não inclua explicações fora do README
+
